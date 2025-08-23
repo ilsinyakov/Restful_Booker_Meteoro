@@ -1,3 +1,4 @@
+from collections.abc import Generator
 from typing import Any
 
 import pytest
@@ -8,8 +9,10 @@ from config import BASE_URL, PASSWORD, USERNAME
 
 
 @pytest.fixture
-def api_client() -> requests.Session:
-    return requests.Session()
+def api_client() -> Generator[requests.Session, Any, Any]:
+    session = requests.Session()
+    yield session
+    session.close()
 
 
 @pytest.fixture

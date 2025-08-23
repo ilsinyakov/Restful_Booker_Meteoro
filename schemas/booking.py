@@ -8,7 +8,7 @@ class BookingDates(BaseModel):
     checkout: date
 
 
-class BookingSchema(BaseModel):
+class Booking(BaseModel):
     firstname: str
     lastname: str
     totalprice: int
@@ -16,5 +16,10 @@ class BookingSchema(BaseModel):
     bookingdates: BookingDates
     additionalneeds: str
 
+
+class BookingSchema(BaseModel):
+    bookingid: int
+    booking: Booking
+
     class Config:
-        allow_population_by_field_name = True
+        validate_by_name = True

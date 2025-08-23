@@ -26,3 +26,7 @@ select = ["E", "W", "F", "I", "N", "B", "Q", "ANN", "RET", "SLF", "SIM", "UP", "
 
 [tool.pytest.ini_options]
 addopts = "--alluredir=allure-results"
+markers = [
+    "positive",
+    "negative"
+]
