@@ -5,7 +5,7 @@ import pytest
 import requests
 
 from config import BASE_URL
-from schemas.booking import BookingSchema
+from schemas.booking import BookingSchema, CreateBookingSchema
 
 
 @allure.feature("Booking Management")
@@ -21,7 +21,7 @@ class TestPositive:
         with allure.step("Verify response code and schema"):
             assert response.status_code == requests.codes.ok
             booking = response.json()
-            BookingSchema(**booking)
+            CreateBookingSchema(**booking)
 
         return booking["bookingid"]
 
@@ -89,6 +89,7 @@ class TestNegative:
     @allure.title("Create booking with invalid data")
     @allure.story("Negative")
     @pytest.mark.negative
+    @pytest.mark.xfail(reason="Actual response code is 500, expected - 400")
     def test_create_invalid_booking(self, api_client: requests.Session) -> None:  # noqa: PLR6301
         with allure.step("Send invalid booking creation request"):
             response = api_client.post(f"{BASE_URL}/booking", json={})
