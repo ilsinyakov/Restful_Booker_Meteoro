@@ -1,0 +1,141 @@
+from typing import Any
+
+import allure
+import pytest
+import requests
+
+from config import BASE_URL
+from schemas.booking import BookingSchema
+
+
+@allure.feature("Booking Management")
+class TestPositive:
+
+    @allure.title("Create new booking")
+    @allure.story("Positive")
+    @pytest.mark.positive
+    def test_create_booking(self, api_client: requests.Session, valid_booking: dict[str, Any]) -> int:  # noqa: PLR6301
+        with allure.step("Send booking creation request"):
+            response = api_client.post(f"{BASE_URL}/booking", json=valid_booking)
+
+        with allure.step("Verify response code and schema"):
+            assert response.status_code == requests.codes.ok
+            booking = response.json()
+            BookingSchema(**booking)
+
+        return booking["bookingid"]
+
+    @allure.title("Get booking details")
+    @allure.story("Positive")
+    @pytest.mark.positive
+    def test_get_booking(self, api_client: requests.Session, valid_booking: dict[str, Any]) -> None:
+        booking_id = self.test_create_booking(api_client, valid_booking)
+        with allure.step(f"Get booking by ID: {booking_id}"):
+            response = api_client.get(f"{BASE_URL}/booking/{booking_id}")
+        with allure.step("Verify response code and schema"):
+            assert response.status_code == requests.codes.ok
+            BookingSchema(**response.json())
+
+    @allure.title("Update booking details")
+    @allure.story("Positive")
+    @pytest.mark.positive
+    def test_update_booking(
+        self,
+        api_client: requests.Session,
+        valid_booking: dict[str, Any],
+        auth_token: str,
+    ) -> None:
+        booking_id = self.test_create_booking(api_client, valid_booking)
+        updated_data = valid_booking.copy()
+        updated_data["firstname"] = "UpdatedName"
+
+        with allure.step("Send booking update request"):
+            headers = {"Cookie": f"token={auth_token}"}
+            response = api_client.put(
+                f"{BASE_URL}/booking/{booking_id}",
+                json=updated_data,
+                headers=headers,
+            )
+
+        with allure.step("Verify response code and schema"):
+            assert response.status_code == requests.codes.ok
+            BookingSchema(**response.json())
+
+    @allure.title("Delete booking")
+    @allure.story("Positive")
+    @pytest.mark.positive
+    def test_delete_booking(
+        self,
+        api_client: requests.Session,
+        valid_booking: dict[str, Any],
+        auth_token: str,
+    ) -> None:
+        booking_id = self.test_create_booking(api_client, valid_booking)
+
+        with allure.step("Send booking deletion request"):
+            headers = {"Cookie": f"token={auth_token}"}
+            response = api_client.delete(
+                f"{BASE_URL}/booking/{booking_id}",
+                headers=headers,
+            )
+
+        with allure.step("Verify response code"):
+            assert response.status_code == requests.codes.created
+
+
+@allure.feature("Booking Management")
+class TestNegative:
+
+    @allure.title("Create booking with invalid data")
+    @allure.story("Negative")
+    @pytest.mark.negative
+    def test_create_invalid_booking(self, api_client: requests.Session) -> None:  # noqa: PLR6301
+        with allure.step("Send invalid booking creation request"):
+            response = api_client.post(f"{BASE_URL}/booking", json={})
+
+        with allure.step("Verify bad request response"):
+            assert response.status_code == requests.codes.bad_request
+
+    @allure.title("Get non-existent booking")
+    @allure.story("Negative")
+    @pytest.mark.negative
+    def test_get_nonexistent_booking(self, api_client: requests.Session) -> None:  # noqa: PLR6301
+        with allure.step("Request non-existent booking"):
+            response = api_client.get(f"{BASE_URL}/booking/999999")
+
+        with allure.step("Verify not found response"):
+            assert response.status_code == requests.codes.not_found
+
+    @allure.title("Update booking without token")
+    @allure.story("Negative")
+    @pytest.mark.negative
+    def test_update_without_token(  # noqa: PLR6301
+        self,
+        api_client: requests.Session,
+        valid_booking: dict[str, Any],
+    ) -> None:
+        booking_id = TestPositive().test_create_booking(api_client, valid_booking)
+        with allure.step("Attempt update without authentication"):
+            response = api_client.put(
+                f"{BASE_URL}/booking/{booking_id}",
+                json=valid_booking,
+            )
+
+        with allure.step("Verify forbidden response"):
+            assert response.status_code == requests.codes.forbidden
+
+    @allure.title("Delete booking without token")
+    @allure.story("Negative")
+    @pytest.mark.negative
+    def test_delete_without_token(  # noqa: PLR6301
+        self,
+        api_client: requests.Session,
+        valid_booking: dict[str, Any],
+    ) -> None:
+        booking_id = TestPositive().test_create_booking(api_client, valid_booking)
+
+        with allure.step("Attempt deletion without authentication"):
+            response = api_client.delete(f"{BASE_URL}/booking/{booking_id}")
+
+        with allure.step("Verify forbidden response"):
+            assert response.status_code == requests.codes.forbidden

@@ -1,0 +1,28 @@
+[project]
+name = "restful-booker-meteoro"
+version = "0.1.0"
+description = "Test task for Meteoro Platform - AQA Engineer"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "pytest",
+    "requests",
+    "pydantic",
+    "faker",
+    "allure-pytest"
+]
+
+[tool.ruff]
+line-length = 120
+# Group violations by containing file.
+output-format = "grouped"
+# Enable preview features.
+preview = true
+# Enumerate all fixed violations.
+show-fixes = true
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "N", "B", "Q", "ANN", "RET", "SLF", "SIM", "UP", "COM", "PL", "PERF", "RUF"]
+
+[tool.pytest.ini_options]
+addopts = "--alluredir=allure-results"
