@@ -6,6 +6,7 @@ import requests
 
 from config import BASE_URL
 from schemas.booking import BookingSchema, CreateBookingSchema
+from util.allure_attach import attach_request_response
 
 
 @allure.feature("Booking Management")
@@ -17,6 +18,7 @@ class TestPositive:
     def test_create_booking(self, api_client: requests.Session, valid_booking: dict[str, Any]) -> int:  # noqa: PLR6301
         with allure.step("Send booking creation request"):
             response = api_client.post(f"{BASE_URL}/booking", json=valid_booking)
+            attach_request_response(response)
 
         with allure.step("Verify response code and schema"):
             assert response.status_code == requests.codes.ok
@@ -32,6 +34,8 @@ class TestPositive:
         booking_id = self.test_create_booking(api_client, valid_booking)
         with allure.step(f"Get booking by ID: {booking_id}"):
             response = api_client.get(f"{BASE_URL}/booking/{booking_id}")
+            attach_request_response(response)
+
         with allure.step("Verify response code and schema"):
             assert response.status_code == requests.codes.ok
             BookingSchema(**response.json())
@@ -56,10 +60,14 @@ class TestPositive:
                 json=updated_data,
                 headers=headers,
             )
+            attach_request_response(response)
 
         with allure.step("Verify response code and schema"):
             assert response.status_code == requests.codes.ok
             BookingSchema(**response.json())
+
+        with allure.step("Verify updated firstname"):
+            assert response.json()["firstname"] == "UpdatedName"
 
     @allure.title("Delete booking")
     @allure.story("Positive")
@@ -78,9 +86,15 @@ class TestPositive:
                 f"{BASE_URL}/booking/{booking_id}",
                 headers=headers,
             )
+            attach_request_response(response)
 
         with allure.step("Verify response code"):
             assert response.status_code == requests.codes.created
+
+        with allure.step("Try get deleted booking"):
+            response = api_client.get(f"{BASE_URL}/booking/{booking_id}")
+            attach_request_response(response)
+            assert response.status_code == requests.codes.not_found
 
 
 @allure.feature("Booking Management")
@@ -93,6 +107,7 @@ class TestNegative:
     def test_create_invalid_booking(self, api_client: requests.Session) -> None:  # noqa: PLR6301
         with allure.step("Send invalid booking creation request"):
             response = api_client.post(f"{BASE_URL}/booking", json={})
+            attach_request_response(response)
 
         with allure.step("Verify bad request response"):
             assert response.status_code == requests.codes.bad_request
@@ -103,6 +118,7 @@ class TestNegative:
     def test_get_nonexistent_booking(self, api_client: requests.Session) -> None:  # noqa: PLR6301
         with allure.step("Request non-existent booking"):
             response = api_client.get(f"{BASE_URL}/booking/999999")
+            attach_request_response(response)
 
         with allure.step("Verify not found response"):
             assert response.status_code == requests.codes.not_found
@@ -116,11 +132,13 @@ class TestNegative:
         valid_booking: dict[str, Any],
     ) -> None:
         booking_id = TestPositive().test_create_booking(api_client, valid_booking)
+
         with allure.step("Attempt update without authentication"):
             response = api_client.put(
                 f"{BASE_URL}/booking/{booking_id}",
                 json=valid_booking,
             )
+            attach_request_response(response)
 
         with allure.step("Verify forbidden response"):
             assert response.status_code == requests.codes.forbidden
@@ -137,6 +155,7 @@ class TestNegative:
 
         with allure.step("Attempt deletion without authentication"):
             response = api_client.delete(f"{BASE_URL}/booking/{booking_id}")
+            attach_request_response(response)
 
         with allure.step("Verify forbidden response"):
             assert response.status_code == requests.codes.forbidden
