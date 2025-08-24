@@ -1,6 +1,6 @@
 from datetime import date
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class BookingDates(BaseModel):
@@ -21,5 +21,4 @@ class CreateBookingSchema(BaseModel):
     bookingid: int
     booking: BookingSchema
 
-    class Config:
-        validate_by_name = True
+    model_config = ConfigDict(validate_by_name=True)
