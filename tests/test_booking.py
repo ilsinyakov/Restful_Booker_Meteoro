@@ -14,6 +14,7 @@ class TestPositive:
 
     @allure.title("Create new booking")
     @allure.story("Positive")
+    @allure.severity(allure.severity_level.BLOCKER)
     @pytest.mark.positive
     def test_create_booking(self, api_client: requests.Session, valid_booking: dict[str, Any]) -> int:  # noqa: PLR6301
         with allure.step("Send booking creation request"):
@@ -29,6 +30,7 @@ class TestPositive:
 
     @allure.title("Get booking details")
     @allure.story("Positive")
+    @allure.severity(allure.severity_level.CRITICAL)
     @pytest.mark.positive
     def test_get_booking(self, api_client: requests.Session, valid_booking: dict[str, Any]) -> None:
         booking_id = self.test_create_booking(api_client, valid_booking)
@@ -42,6 +44,7 @@ class TestPositive:
 
     @allure.title("Update booking details")
     @allure.story("Positive")
+    @allure.severity(allure.severity_level.CRITICAL)
     @pytest.mark.positive
     def test_update_booking(
         self,
@@ -71,6 +74,7 @@ class TestPositive:
 
     @allure.title("Delete booking")
     @allure.story("Positive")
+    @allure.severity(allure.severity_level.CRITICAL)
     @pytest.mark.positive
     def test_delete_booking(
         self,
@@ -102,6 +106,7 @@ class TestNegative:
 
     @allure.title("Create booking with invalid data")
     @allure.story("Negative")
+    @allure.severity(allure.severity_level.NORMAL)
     @pytest.mark.negative
     @pytest.mark.xfail(reason="Actual response code is 500, expected - 400")
     def test_create_invalid_booking(self, api_client: requests.Session) -> None:  # noqa: PLR6301
@@ -114,6 +119,7 @@ class TestNegative:
 
     @allure.title("Get non-existent booking")
     @allure.story("Negative")
+    @allure.severity(allure.severity_level.NORMAL)
     @pytest.mark.negative
     def test_get_nonexistent_booking(self, api_client: requests.Session) -> None:  # noqa: PLR6301
         with allure.step("Request non-existent booking"):
@@ -125,6 +131,7 @@ class TestNegative:
 
     @allure.title("Update booking without token")
     @allure.story("Negative")
+    @allure.severity(allure.severity_level.CRITICAL)
     @pytest.mark.negative
     def test_update_without_token(  # noqa: PLR6301
         self,
@@ -145,6 +152,7 @@ class TestNegative:
 
     @allure.title("Delete booking without token")
     @allure.story("Negative")
+    @allure.severity(allure.severity_level.CRITICAL)
     @pytest.mark.negative
     def test_delete_without_token(  # noqa: PLR6301
         self,
@@ -162,6 +170,7 @@ class TestNegative:
 
     @allure.title("Authorization with invalid password")
     @allure.story("Negative")
+    @allure.severity(allure.severity_level.CRITICAL)
     @pytest.mark.negative
     def test_auth_invalid_password(self, api_client: requests.Session) -> None:  # noqa: PLR6301
         invalid_credentials = {
