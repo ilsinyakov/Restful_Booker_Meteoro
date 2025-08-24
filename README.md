@@ -5,20 +5,23 @@
 ```text
 Restful_Booker_Meteoro/
 ├── schemas/                # Pydantic schemas for JSON validation
-    ├── booking.py
+│   ├── booking.py
 ├── tests/                  # Tests
-    ├── test_booking.py
-├── util/                   # Utils
-    ├── allure_attach.py
-├── config.py               # Configuration (URLs, credentials e.g.)
+│   ├── test_booking.py
+├── util/                   # Utility functions
+│   ├── allure_attach.py
+├── .gitignore              # Files to ignore in version control
+├── config.py               # Configuration (URLs, credentials)
 ├── conftest.py             # Pytest fixtures
 ├── pyproject.toml          # Dependencies, uv project, ruff and pytest configuration
+├── README.md               # Project documentation
 ├── requirements.txt        # Dependencies list
+├── uv.lock                 # Dependency lock file
 ```
 
 ## Run tests
 
-### Install uv
+### 1. Install uv
 
 [Документация uv](https://github.com/astral-sh/uv)
 
