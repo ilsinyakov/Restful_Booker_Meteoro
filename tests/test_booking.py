@@ -4,7 +4,7 @@ import allure
 import pytest
 import requests
 
-from config import BASE_URL
+from config import BASE_URL, USERNAME
 from schemas.booking import BookingSchema, CreateBookingSchema
 from util.allure_attach import attach_request_response
 
@@ -159,3 +159,21 @@ class TestNegative:
 
         with allure.step("Verify forbidden response"):
             assert response.status_code == requests.codes.forbidden
+
+    @allure.title("Authorization with invalid password")
+    @allure.story("Negative")
+    @pytest.mark.negative
+    def test_auth_invalid_password(self, api_client: requests.Session) -> None:  # noqa: PLR6301
+        invalid_credentials = {
+            "username": USERNAME,
+            "password": "wrongpassword",
+        }
+
+        with allure.step("Send auth request with invalid password"):
+            response = api_client.post(f"{BASE_URL}/auth", json=invalid_credentials)
+            attach_request_response(response)
+
+        with allure.step("Verify authentication failure"):
+            assert response.status_code == requests.codes.ok
+            assert "reason" in response.json()
+            assert response.json()["reason"] == "Bad credentials"
