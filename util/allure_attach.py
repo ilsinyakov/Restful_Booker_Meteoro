@@ -41,8 +41,9 @@ def attach_request_response(response: requests.Response) -> None:
         name="Response",
         attachment_type=AttachmentType.TEXT,
     )
-    allure.attach(json.dumps(dict(response.headers), indent=2),
-                  name="Response headers",
-                  attachment_type=AttachmentType.JSON,
+    allure.attach(
+        json.dumps(dict(response.headers), indent=2),
+        name="Response headers",
+        attachment_type=AttachmentType.JSON,
     )
     allure.attach(response_body, name="Response body", attachment_type=response_attachment_type)

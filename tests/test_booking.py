@@ -34,6 +34,7 @@ class TestPositive:
     @pytest.mark.positive
     def test_get_booking(self, api_client: requests.Session, valid_booking: dict[str, Any]) -> None:
         booking_id = self.test_create_booking(api_client, valid_booking)
+
         with allure.step(f"Get booking by ID: {booking_id}"):
             response = api_client.get(f"{BASE_URL}/booking/{booking_id}")
             attach_request_response(response)
